@@ -8,8 +8,10 @@ Todas as alterações foram ancoradas nas exigências do barema da disciplina MA
 
 ## 1. Nomenclatura e Padrão Corporativo (Metodologia MAD)
 * **Alteração:** Todas as tabelas, chaves e colunas foram convertidas de *PascalCase* ou *camelCase* para o padrão estrito **snake_case** em letras minúsculas.
-* **Exemplos de correção:** * `Projeto` $ightarrow$ `projeto`
-    * `fk_Financiador_id_financiador` $ightarrow$ `id_financiador`
+* **Exemplos de correção:** * `Projeto` $
+rightarrow$ `projeto`
+    * `fk_Financiador_id_financiador` $
+ightarrow$ `id_financiador`
 * **Justificativa Teórica:** O padrão MAD (ISO 11179-5) exige padronização semântica. No PostgreSQL, o uso de letras maiúsculas forçaria o uso de aspas duplas em todas as queries (`SELECT * FROM "Projeto"`), o que é uma má prática de desenvolvimento e contraria as normas do projeto.
 
 ## 2. Tipagem de Dados Nativa (Otimização PostgreSQL)
@@ -24,7 +26,8 @@ Todas as alterações foram ancoradas nas exigências do barema da disciplina MA
 * **Alteração (Obrigatoriedade):** Cláusulas `NOT NULL` foram adicionadas a praticamente todos os atributos descritivos vitais (ex: `titulo_projeto`, `data_inicio`, `email`, `primeiro_nome`).
 * **Justificativa Teórica:** Eliminar valores nulos impede a perda de semântica e falhas na lógica de negócio (*Silberschatz, Cap. 4*). Um projeto de pesquisa não pode existir no banco sem um título.
 
-## 4. Evolução Arquitetural de Chaves Estrangeiras (Mapeamento MER $ightarrow$ Físico)
+## 4. Evolução Arquitetural de Chaves Estrangeiras (Mapeamento MER $
+ightarrow$ Físico)
 O mapeamento físico foi ajustado para refletir fielmente o nosso Modelo Entidade-Relacionamento aprovado na Fase 1 (*Elmasri, Cap. 5*).
 
 ### 4.1. Tabela Associativa (`financia`)
