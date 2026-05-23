@@ -1,101 +1,105 @@
-/* Modelo_Logico: */
-
-CREATE TABLE Projeto (
-    id_projeto INTEGER PRIMARY KEY,
-    titulo_projeto VARCHAR(50),
-    data_inicio DATE,
-    data_termino DATE
+CREATE TABLE projeto (
+    id_projeto SERIAL PRIMARY KEY,
+    titulo_projeto VARCHAR(255) NOT NULL,
+    data_inicio DATE NOT NULL,
+    data_termino DATE NOT NULL
 );
 
-CREATE TABLE Publicacao (
-    id_publicacao INTEGER PRIMARY KEY,
-    fk_id_projeto INTEGER,
-    doi VARCHAR(255) UNIQUE,
-    titulo_publicacao VARCHAR(255),
-    data_publicacao DATE
-);
-
-CREATE TABLE Pesquisador (
-    id_pesquisador INTEGER PRIMARY KEY,
-    cpf_pesquisador CHAR(11) UNIQUE,
-    titulacao VARCHAR(50),
-    email VARCHAR(150),
-    telefone VARCHAR(20),
-    primeiro_nome VARCHAR(50),
-    sobrenome VARCHAR(50)
-);
-
-CREATE TABLE Financiador (
-    id_financiador INTEGER PRIMARY KEY,
-    cnpj_financiador CHAR(14) UNIQUE,
-    nome_financiador VARCHAR(150),
-    tipo_financiador VARCHAR(50),
+CREATE TABLE financiador (
+    id_financiador SERIAL PRIMARY KEY,
+    cnpj_financiador CHAR(14) UNIQUE NOT NULL,
+    nome_financiador VARCHAR(150) NOT NULL,
+    tipo_financiador VARCHAR(50) NOT NULL,
     contato_financiador VARCHAR(100)
 );
 
-CREATE TABLE Contrato (
-    id_contrato INTEGER PRIMARY KEY,
-    fk_bolsa_id_bolsa INTEGER UNIQUE,
-    fk_projeto_id_projeto INTEGER,
-    fk_pesquisador_id_pesquisador INTEGER,
-    data_assinatura DATE,
-    data_vencimento DATE,
-    tipo_vinculo VARCHAR(50)
+CREATE TABLE pesquisador (
+    id_pesquisador SERIAL PRIMARY KEY,
+    cpf_pesquisador CHAR(11) UNIQUE NOT NULL,
+    titulacao VARCHAR(50) NOT NULL,
+    email VARCHAR(150) UNIQUE NOT NULL,
+    telefone VARCHAR(20),
+    primeiro_nome VARCHAR(50) NOT NULL,
+    sobrenome VARCHAR(50) NOT NULL
 );
 
-CREATE TABLE Bolsa (
-    id_bolsa INTEGER PRIMARY KEY,
-    fk_projeto_id_projeto INTEGER,
-    valor_bolsa DECIMAL,
-    categoria_bolsa VARCHAR(50),
-    numero_processo VARCHAR(100)
+CREATE TABLE bolsa (
+    id_bolsa SERIAL PRIMARY KEY,
+    id_projeto INTEGER NOT NULL,
+    valor_bolsa DECIMAL(10,2) NOT NULL,
+    categoria_bolsa VARCHAR(50) NOT NULL,
+    numero_processo VARCHAR(100) UNIQUE,
+    
+    CONSTRAINT fk_bolsa_projeto 
+        FOREIGN KEY (id_projeto) 
+        REFERENCES projeto (id_projeto) 
+        ON DELETE CASCADE
 );
 
-CREATE TABLE Relatorio (
-    fk_projeto_id_projeto INTEGER,
-    sequencial_relatorio INTEGER,
-    data_submissao DATE,
-    texto_conteudo TEXT,
-    PRIMARY KEY (fk_projeto_id_projeto, sequencial_relatorio)
+CREATE TABLE contrato (
+    id_contrato SERIAL PRIMARY KEY,
+    id_pesquisador INTEGER NOT NULL,
+    id_projeto INTEGER NOT NULL,
+    id_bolsa INTEGER UNIQUE,
+    data_assinatura DATE NOT NULL,
+    data_vencimento DATE NOT NULL,
+    tipo_vinculo VARCHAR(50) NOT NULL,
+
+    CONSTRAINT fk_contrato_pesquisador 
+        FOREIGN KEY (id_pesquisador) 
+        REFERENCES pesquisador (id_pesquisador)
+        ON DELETE RESTRICT,
+
+    CONSTRAINT fk_contrato_projeto 
+        FOREIGN KEY (id_projeto) 
+        REFERENCES projeto (id_projeto) 
+        ON DELETE CASCADE,
+
+    CONSTRAINT fk_contrato_bolsa 
+        FOREIGN KEY (id_bolsa) 
+        REFERENCES bolsa (id_bolsa) 
+        ON DELETE SET NULL
 );
 
-CREATE TABLE Financia (
-    fk_Financiador_id_financiador INTEGER,
-    fk_Projeto_id_projeto INTEGER,
-    valor_aportado DECIMAL,
-    PRIMARY KEY (fk_Financiador_id_financiador, fk_Projeto_id_projeto)
+CREATE TABLE publicacao (
+    id_publicacao SERIAL PRIMARY KEY,
+    id_projeto INTEGER NOT NULL,
+    doi VARCHAR(255) UNIQUE NOT NULL,
+    titulo_publicacao VARCHAR(255) NOT NULL,
+    data_publicacao DATE NOT NULL,
+    
+    CONSTRAINT fk_publicacao_projeto 
+        FOREIGN KEY (id_projeto) 
+        REFERENCES projeto (id_projeto) 
+        ON DELETE CASCADE
 );
- 
-ALTER TABLE Publicacao ADD CONSTRAINT FK_Publicacao_2
-    FOREIGN KEY (fk_id_projeto)
-    REFERENCES Projeto (id_projeto);
- 
-ALTER TABLE Contrato ADD CONSTRAINT FK_Contrato_2
-    FOREIGN KEY (fk_projeto_id_projeto)
-    REFERENCES Projeto (id_projeto);
- 
-ALTER TABLE Contrato ADD CONSTRAINT FK_Contrato_3
-    FOREIGN KEY (fk_bolsa_id_bolsa)
-    REFERENCES Bolsa (id_bolsa);
- 
-ALTER TABLE Contrato ADD CONSTRAINT FK_Contrato_5
-    FOREIGN KEY (fk_pesquisador_id_pesquisador)
-    REFERENCES Pesquisador (id_pesquisador);
- 
-ALTER TABLE Bolsa ADD CONSTRAINT FK_Bolsa_2
-    FOREIGN KEY (fk_projeto_id_projeto)
-    REFERENCES Projeto (id_projeto);
- 
-ALTER TABLE Relatorio ADD CONSTRAINT FK_Relatorio_1
-    FOREIGN KEY (fk_projeto_id_projeto)
-    REFERENCES Projeto (id_projeto);
- 
-ALTER TABLE Financia ADD CONSTRAINT FK_Financia_1
-    FOREIGN KEY (fk_Financiador_id_financiador)
-    REFERENCES Financiador (id_financiador)
-    ON DELETE RESTRICT;
- 
-ALTER TABLE Financia ADD CONSTRAINT FK_Financia_2
-    FOREIGN KEY (fk_Projeto_id_projeto)
-    REFERENCES Projeto (id_projeto)
-    ON DELETE SET NULL;
+
+CREATE TABLE relatorio (
+    id_projeto INTEGER NOT NULL,
+    sequencial_relatorio INTEGER NOT NULL,
+    data_submissao DATE NOT NULL,
+    texto_conteudo TEXT NOT NULL,
+    PRIMARY KEY (id_projeto, sequencial_relatorio),
+    
+    CONSTRAINT fk_relatorio_projeto 
+        FOREIGN KEY (id_projeto) 
+        REFERENCES projeto (id_projeto) 
+        ON DELETE CASCADE
+);
+
+CREATE TABLE financia (
+    id_financiador INTEGER NOT NULL,
+    id_projeto INTEGER NOT NULL,
+    valor_aportado DECIMAL(10,2) NOT NULL,
+    PRIMARY KEY (id_financiador, id_projeto),
+
+    CONSTRAINT fk_financia_financiador
+        FOREIGN KEY (id_financiador)
+        REFERENCES financiador (id_financiador) 
+        ON DELETE RESTRICT,
+   
+    CONSTRAINT fk_financia_projeto 
+        FOREIGN KEY (id_projeto) 
+        REFERENCES projeto (id_projeto) 
+        ON DELETE CASCADE
+);
