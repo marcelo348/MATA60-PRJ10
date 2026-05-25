@@ -21,6 +21,9 @@ FROM (
 WINDOW w AS (
     PARTITION BY nome_completo ORDER BY data_assinatura
     ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING
+)
+
+
 
 
 
