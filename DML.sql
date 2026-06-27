@@ -4,7 +4,8 @@ WITH RECURSIVE seq_projetos(i) AS (
     SELECT 1
     UNION ALL
     SELECT i + 1 FROM seq_projetos WHERE i < 1000
-)INSERT INTO projeto (titulo_projeto, data_inicio, data_termino)
+)
+INSERT INTO projeto (titulo_projeto, data_inicio, data_termino)
 SELECT 
     'Pesquisa em Tema ' || CAST(i AS VARCHAR),
     CURRENT_DATE - CAST(FLOOR(RANDOM() * 1000 + 365) AS INTEGER) * INTERVAL '1 day',
@@ -15,7 +16,8 @@ WITH RECURSIVE seq_financiadores(i) AS (
     SELECT 1
     UNION ALL
     SELECT i + 1 FROM seq_financiadores WHERE i < 50
-)INSERT INTO financiador (cnpj_financiador, nome_financiador, tipo_financiador, contato_financiador)
+)
+INSERT INTO financiador (cnpj_financiador, nome_financiador, tipo_financiador, contato_financiador)
 SELECT 
     LPAD(CAST(i AS VARCHAR), 14, '0'),
     'Fundo de Amparo ' || CAST(i AS VARCHAR),
@@ -27,7 +29,8 @@ WITH RECURSIVE seq_pesq(i) AS (
     SELECT 1
     UNION ALL
     SELECT i + 1 FROM seq_pesq WHERE i < 5000
-)INSERT INTO pesquisador (cpf_pesquisador, titulacao, email, telefone, primeiro_nome, sobrenome)
+)
+INSERT INTO pesquisador (cpf_pesquisador, titulacao, email, telefone, primeiro_nome, sobrenome)
 SELECT 
     LPAD(CAST(i AS VARCHAR), 11, '0'),
     CASE MOD(i, 3) 
@@ -45,7 +48,8 @@ WITH RECURSIVE seq_bolsas(i) AS (
     SELECT 1
     UNION ALL
     SELECT i + 1 FROM seq_bolsas WHERE i < 3000
-)INSERT INTO bolsa (id_projeto, valor_bolsa, categoria_bolsa, numero_processo)
+)
+INSERT INTO bolsa (id_projeto, valor_bolsa, categoria_bolsa, numero_processo)
 SELECT 
     CAST(FLOOR(RANDOM() * 1000 + 1) AS INTEGER),
     CASE MOD(i, 3) 
@@ -65,15 +69,33 @@ WITH RECURSIVE seq_contratos(i) AS (
     SELECT 1
     UNION ALL
     SELECT i + 1 FROM seq_contratos WHERE i < 6000
-)INSERT INTO contrato (id_pesquisador, id_projeto, id_bolsa, data_assinatura, data_vencimento, tipo_vinculo)
+)
+INSERT INTO contrato (id_pesquisador, id_projeto, id_bolsa, data_assinatura, data_vencimento, tipo_vinculo)
 SELECT 
-    CAST(FLOOR(RANDOM() * 5000 + 1) AS INTEGER),
-    CAST(FLOOR(RANDOM() * 1000 + 1) AS INTEGER),
-    CASE WHEN i <= 3000 THEN i ELSE NULL END, 
+    CAST(FLOOR(RANDOM() * 5000 + 1) AS INTEGER), -- id_pesquisador aleatório
+    
+    CASE 
+        WHEN i <= 3000 THEN (SELECT id_projeto FROM bolsa WHERE id_bolsa = i)
+        ELSE CAST(FLOOR(RANDOM() * 1000 + 1) AS INTEGER) 
+    END,
+    
+    CASE WHEN i <= 3000 THEN i ELSE NULL END,
+    
     CURRENT_DATE - CAST(FLOOR(RANDOM() * 500 + 180) AS INTEGER) * INTERVAL '1 day',
     CURRENT_DATE + CAST(FLOOR(RANDOM() * 500) AS INTEGER) * INTERVAL '1 day',
+    
     CASE WHEN i <= 3000 THEN 'Bolsista' ELSE 'Voluntário' END
 FROM seq_contratos;
+
+INSERT INTO bolsa (id_projeto, valor_bolsa, categoria_bolsa, numero_processo)
+SELECT 
+    c.id_projeto,
+    SUM(b.valor_bolsa),
+    'Orçamento Consolidado',
+    'TOTAL-' || LPAD(CAST(c.id_projeto AS VARCHAR), 8, '0')
+FROM contrato c
+JOIN bolsa b ON c.id_bolsa = b.id_bolsa
+GROUP BY c.id_projeto;
 
 INSERT INTO financia (id_financiador, id_projeto, valor_aportado)
 SELECT 
@@ -89,7 +111,8 @@ WITH RECURSIVE seq_pub(i) AS (
     SELECT 1
     UNION ALL
     SELECT i + 1 FROM seq_pub WHERE i < 2000
-)INSERT INTO publicacao (id_projeto, doi, titulo_publicacao, data_publicacao)
+)
+INSERT INTO publicacao (id_projeto, doi, titulo_publicacao, data_publicacao)
 SELECT 
     CAST(FLOOR(RANDOM() * 1000 + 1) AS INTEGER),
     '10.1000/ufba.' || LPAD(CAST(i AS VARCHAR), 6, '0'),
@@ -101,7 +124,8 @@ WITH RECURSIVE seq_rel(seq) AS (
     SELECT 1
     UNION ALL
     SELECT seq + 1 FROM seq_rel WHERE seq < 3
-)INSERT INTO relatorio (id_projeto, sequencial_relatorio, data_submissao, texto_conteudo)
+)
+INSERT INTO relatorio (id_projeto, sequencial_relatorio, data_submissao, texto_conteudo)
 SELECT 
     p.id_projeto,
     s.seq,
