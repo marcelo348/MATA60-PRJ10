@@ -1,11 +1,5 @@
--- ==========================================
--- SCRIPT DE POPULAÇÃO PURAMENTE ANSI SQL
--- MATA60 (PRJ10)
--- ==========================================
-
 TRUNCATE TABLE financia, relatorio, publicacao, contrato, bolsa, pesquisador, financiador, projeto RESTART IDENTITY CASCADE;
 
--- 1. PROJETOS (1000 registros)
 WITH RECURSIVE seq_projetos(i) AS (
     SELECT 1
     UNION ALL
@@ -17,7 +11,6 @@ SELECT
     CURRENT_DATE + CAST(FLOOR(RANDOM() * 365) AS INTEGER) * INTERVAL '1 day'
 FROM seq_projetos;
 
--- 2. FINANCIADORES (50 registros)
 WITH RECURSIVE seq_financiadores(i) AS (
     SELECT 1
     UNION ALL
@@ -30,7 +23,6 @@ SELECT
     '(71) 9' || LPAD(CAST(FLOOR(RANDOM() * 99999999) AS VARCHAR), 8, '0')
 FROM seq_financiadores;
 
--- 3. PESQUISADORES (5000 registros)
 WITH RECURSIVE seq_pesq(i) AS (
     SELECT 1
     UNION ALL
@@ -49,7 +41,6 @@ SELECT
     'Sobrenome' || CAST(i AS VARCHAR)
 FROM seq_pesq;
 
--- 4. BOLSAS (3000 registros)
 WITH RECURSIVE seq_bolsas(i) AS (
     SELECT 1
     UNION ALL
@@ -70,7 +61,6 @@ SELECT
     'PROC-' || LPAD(CAST(i AS VARCHAR), 8, '0')
 FROM seq_bolsas;
 
--- 5. CONTRATOS (6000 registros)
 WITH RECURSIVE seq_contratos(i) AS (
     SELECT 1
     UNION ALL
@@ -85,7 +75,6 @@ SELECT
     CASE WHEN i <= 3000 THEN 'Bolsista' ELSE 'Voluntário' END
 FROM seq_contratos;
 
--- 6. FINANCIA (1500 registros)
 INSERT INTO financia (id_financiador, id_projeto, valor_aportado)
 SELECT 
     f.id_financiador, 
@@ -96,7 +85,6 @@ CROSS JOIN projeto p
 ORDER BY RANDOM()
 FETCH FIRST 1500 ROWS ONLY;
 
--- 7. PUBLICAÇÕES (2000 registros)
 WITH RECURSIVE seq_pub(i) AS (
     SELECT 1
     UNION ALL
@@ -109,7 +97,6 @@ SELECT
     CURRENT_DATE - CAST(FLOOR(RANDOM() * 700) AS INTEGER) * INTERVAL '1 day'
 FROM seq_pub;
 
--- 8. RELATÓRIOS (2000 registros)
 WITH RECURSIVE seq_rel(seq) AS (
     SELECT 1
     UNION ALL
